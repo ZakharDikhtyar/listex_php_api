@@ -4,8 +4,7 @@ namespace ListexApi;
 
 final class ListexApi
 {
-	//const API_URL = 'https://listex.info/api';
-	const API_URL = 'http://listex2.me/api';
+	const API_URL = 'https://listex.info/api';
 	const VERSION = 'v2';
 
 	const RESPONSE_FORMAT_JSON = 'json';
