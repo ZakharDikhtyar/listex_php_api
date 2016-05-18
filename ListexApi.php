@@ -4,7 +4,8 @@ namespace ListexApi;
 
 final class ListexApi
 {
-	const API_URL = 'https://listex.info/api';
+	//const API_URL = 'https://listex.info/api';
+	const API_URL = 'http://listex2.me/api';
 	const VERSION = 'v2';
 
 	const RESPONSE_FORMAT_JSON = 'json';
@@ -22,7 +23,7 @@ final class ListexApi
 	const BARCODE_TYPE_LTIN = 2;	// local barcode
 	const BARCODE_TYPE_ARTICLE = 3;	// article
 
-	const API_KEY = 'hissd4o9mywjla7q';
+	const API_KEY = '0eg43ihs0khejal';
 
 	protected $apiKey;
 	protected $apiUrl;
@@ -74,14 +75,13 @@ final class ListexApi
 		{
 			$params['format'] = $format;
 		}
+		$params['key'] = $this->apiKey;
 
 		$curl = curl_init();
 
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl, CURLOPT_URL, $this->getUrl($requestEntity));
 		curl_setopt($curl, CURLOPT_USERAGENT, $this->getUserAgent());
-		curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($curl, CURLOPT_HTTPHEADER, [$this->getBasicAuth()]);
 
 		curl_setopt($curl, CURLOPT_POST, true);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
@@ -183,13 +183,12 @@ final class ListexApi
 	/**
 	 * Return info of Barcode
 	 *
-	 * @param int $id Barcode ID
 	 * @param string $barcode Barcode
 	 * @return bool|object
 	 */
-	public function getBarcode($id=null, $barcode=null)
+	public function getBarcode($barcode=null)
 	{
-		$params = ['id' => $id, 'gtin' => $barcode];
+		$params = ['gtin' => $barcode];
 		return $this->getResponse(self::REQUEST_ENTITY_BARCODE, $params);
 	}
 
@@ -325,15 +324,6 @@ final class ListexApi
 		];
 
 		return $this->getResponse(self::REQUEST_ENTITY_TRADEMARKS, $params);
-	}
-
-	/**
-	 * Return the Authorization string
-	 * @return string
-	 */
-	protected function getBasicAuth()
-	{
-		return 'Authorization: Basic ' . base64_encode($this->apiKey . ':' . $this->apiKey);
 	}
 
 	/**
