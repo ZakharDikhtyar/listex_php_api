@@ -22,8 +22,6 @@ final class ListexApi
 	const BARCODE_TYPE_LTIN = 2;	// local barcode
 	const BARCODE_TYPE_ARTICLE = 3;	// article
 
-	const API_KEY = '0eg43ihs0khejal';
-
 	protected $apiKey;
 	protected $apiUrl;
 
@@ -32,11 +30,12 @@ final class ListexApi
 
 	/**
 	 * ListexApi constructor.
+	 * @param $apiKey
 	 */
-	public function __construct()
+	public function __construct($apiKey)
 	{
 		$this->apiUrl = self::API_URL . '/' . self::VERSION;
-		$this->apiKey = self::API_KEY;
+		$this->apiKey = $apiKey;
 		$this->error = null;
 	}
 
