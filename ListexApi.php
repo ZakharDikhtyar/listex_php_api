@@ -4,8 +4,7 @@ namespace ListexApi;
 
 final class ListexApi
 {
-	//const API_URL = 'https://listex.info/api';
-	const API_URL = 'http://listex2.me/api';
+	const API_URL = 'https://listex.info/api';
 	const VERSION = 'v2';
 
 	const RESPONSE_FORMAT_JSON = 'json';
@@ -23,7 +22,7 @@ final class ListexApi
 	const BARCODE_TYPE_LTIN = 2;	// local barcode
 	const BARCODE_TYPE_ARTICLE = 3;	// article
 
-	const API_KEY = '0eg43ihs0khejal';
+	const API_KEY = 'hissd4o9mywjla7q';
 
 	protected $apiKey;
 	protected $apiUrl;
@@ -311,7 +310,6 @@ final class ListexApi
 		return $this->getResponse(self::REQUEST_ENTITY_PRODUCTS, $params);
 	}
 
-
 	/**
 	 * Return list of Trademarks
 	 *
@@ -329,13 +327,11 @@ final class ListexApi
 		return $this->getResponse(self::REQUEST_ENTITY_TRADEMARKS, $params);
 	}
 
-
-
 	/**
 	 * Return the Authorization string
 	 * @return string
 	 */
-	private function getBasicAuth()
+	protected function getBasicAuth()
 	{
 		return 'Authorization: Basic ' . base64_encode($this->apiKey . ':' . $this->apiKey);
 	}
@@ -344,7 +340,7 @@ final class ListexApi
 	 * Return the user agent string
 	 * @return string
 	 */
-	private function getUserAgent()
+	protected function getUserAgent()
 	{
 		return 'Listex PHP API client ' . self::VERSION;
 	}
@@ -354,7 +350,7 @@ final class ListexApi
 	 * @param string $requestEntity
 	 * @return string
 	 */
-	private function getUrl($requestEntity)
+	protected function getUrl($requestEntity)
 	{
 		return self::API_URL . '/' . self::VERSION . '/' . $requestEntity;
 	}
