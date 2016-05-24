@@ -1,8 +1,8 @@
 <?php
 
-namespace ListexApi;
+namespace Listex;
 
-final class ListexApi
+final class Api
 {
 	const API_URL = 'https://listex.info/api';
 	const VERSION = 'v2';
