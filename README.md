@@ -3,17 +3,17 @@
 ## Initialize
 
 ```php
-include_once 'listex_php_api/ListexApi.php';
+include_once './ListexApi.php';
 
-$api = new \ListexApi\ListexApi();
+$api = new \Listex\Api();
 ```
 
 ## Use
 
 ```php
 // get product by id
-$res = $api->getProduct(127477);
+$result = $api->getProduct(127477);
 
 // get list of TM
-$res = $api->getTrademarksList();
+$result = $api->getTrademarksList();
 ```
