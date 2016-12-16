@@ -12,8 +12,8 @@ $api = new \Listex\Api();
 
 ```php
 // get product by id
-$result = $api->getProduct(127477);
+$result = $api->getProductById(127477);
 
-// get list of TM
-$result = $api->getTrademarksList();
+// get list of brands
+$result = $api->getBrands();
 ```
