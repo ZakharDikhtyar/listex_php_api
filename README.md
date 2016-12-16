@@ -11,8 +11,8 @@ $api = new \Listex\Api();
 ## Use
 
 ```php
-// get product by id
-$result = $api->getProductById(127477);
+// get product by barcode
+$result = $api->getProductsByGtin(5018066112433);
 
 // get list of brands
 $result = $api->getBrands();
