@@ -24,6 +24,7 @@ final class Api
 	const REQUEST_ENTITY_BRANDS = 'brands';
 	const REQUEST_ENTITY_CATEGORIES = 'categories';
 	const REQUEST_ENTITY_PRODUCTS = 'product';
+	const REQUEST_ENTITY_ETAGS_LIST= 'etagslist';
 	const REQUEST_ENTITY_SUGGESTIONS = 'suggestions';
 	const REQUEST_ENTITY_ADD_REVIEW = 'addreview';
 
@@ -522,5 +523,20 @@ final class Api
 		];
 
 		return $this->getResponse(self::REQUEST_ENTITY_PRODUCTS, $params, $ETag);
+	}
+
+	/**
+	 * Return array [ GoodId, ETag, Attributes ] for party
+	 *
+	 * @param int $party_id
+	 * @return bool|array
+	 */
+	public function getETagsList($party_id)
+	{
+		$params = [
+			'party_id' => $party_id
+		];
+
+		return $this->getResponse(self::REQUEST_ENTITY_ETAGS_LIST, $params);
 	}
 }

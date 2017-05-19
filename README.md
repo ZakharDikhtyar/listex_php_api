@@ -5,7 +5,7 @@
 ```php
 include_once './ListexApi.php';
 
-$api = new \Listex\Api();
+$api = new \Listex\Api('012345abc');
 ```
 
 ## Use
