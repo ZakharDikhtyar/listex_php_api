@@ -116,7 +116,7 @@ final class Api
 	 */
 	public function getLastETag()
 	{
-		return $this->HeaderETag;
+		return $this->Headeretag;
 	}
 
 	/**
