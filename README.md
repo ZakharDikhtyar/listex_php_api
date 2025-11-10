@@ -261,4 +261,8 @@ try {
 $result = $api->getPlanogramAssortment(2, ['6628']);
 
 $result = $api->getPlanogramAssortmentETagList(2);
+
+$result = $api->getRetailers();
+
+$result = $api->getRetailers('11111111');
 ```
