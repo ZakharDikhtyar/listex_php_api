@@ -216,3 +216,49 @@ $result = $api->getPalletizationByLtin('4011100091108', 1);
 
 $result = $api->getPalletizationBySku('4011100091108', 1);
 ```
+
+## Methods for technology partner
+
+```php
+
+$payload = [
+    [
+        'sku' => '6628',
+        'product_name' => 'Напиток безалкогольный сильногазированный на ароматизаторах Original taste Coca-Cola п/бут 500мл',
+        'on_shelves' => true,
+        'planogram_create_date' => time(),
+        'other_identifiers' => [
+            [
+                'id' => '54491472',
+                'supplier_name' => 'The Coca-Cola Company',
+                'supplier_identifier' => '35957550'
+            ]       
+        ]
+    ]  
+];
+
+try {
+    $result = $api->putPlanogramAssortment(2, $payload);
+    $result = $api->postPlanogramAssortment(2, $payload);
+   
+} catch (\Listex\RequestErrorListexApiException $e) {
+    echo $e->getResponseBody();
+}
+
+$payload = [
+    'sku' => [
+        '6628'
+    ]
+];
+
+try {
+    $result = $api->deletePlanogramAssortment(2, $payload);
+   
+} catch (\Listex\RequestErrorListexApiException $e) {
+    echo $e->getResponseBody();
+}
+
+$result = $api->getPlanogramAssortment(2, ['6628']);
+
+$result = $api->getPlanogramAssortmentETagList(2);
+```
