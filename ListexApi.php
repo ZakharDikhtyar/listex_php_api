@@ -9,7 +9,7 @@ namespace Listex;
  */
 class Api
 {
-    const API_URL = 'https://api.listex.info';
+    const API_URL = 'http://listex.local';
 
     const VERSION = 'v3';
 
@@ -33,6 +33,7 @@ class Api
     const METHOD_NOVELTY_PRODUCTS = 'novelty-products';
     const METHOD_PLANOGRAM_ASSORTMENT = 'planogram-assortment';
     const METHOD_PLANOGRAM_ASSORTMENT_ETAGLIST = 'planogram-assortment-etaglist';
+    const METHOD_RETAILERS = 'retailers';
 
     const CODE_STATUS_OK = 200;
     const CODE_STATUS_NOT_MODIFIED = 304;
@@ -888,6 +889,20 @@ class Api
         ];
 
         return $this->getResponse(self::METHOD_PLANOGRAM_ASSORTMENT_ETAGLIST, $params, $this->format);
+    }
+
+    /**
+     * Return list of retailers
+     * @param string $identifier
+     * @return string
+     */
+    public function getRetailers(?string $identifier = null): string
+    {
+        $params = [];
+        if ($identifier) {
+            $params['identifier'] = $identifier;
+        }
+        return $this->getResponse(self::METHOD_RETAILERS, $params, $this->format);
     }
 }
 
