@@ -82,6 +82,9 @@ try {
     echo 'Not modified';
 }
 
+$result = $api->getProductsById(2, null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
+
 $result = $api->getProductsByGtin('4011100091108');
 
 try {
@@ -89,6 +92,9 @@ try {
 } catch (\Listex\NotModifiedListexApiException $e) {
     echo 'Not modified';
 }
+
+$result = $api->getProductsByGtin('4011100091108', null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
 
 $result = $api->getProductsByLtin('4011100091108', 1);
 
@@ -98,6 +104,9 @@ try {
     echo 'Not modified';
 }
 
+$result = $api->getProductsByLtin('4011100091108', 1, null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
+
 $result = $api->getProductsBySku('4011100091108', 1);
 
 try {
@@ -105,6 +114,9 @@ try {
 } catch (\Listex\NotModifiedListexApiException $e) {
     echo 'Not modified';
 }
+
+$result = $api->getProductsBySku('4011100091108', 1, null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
 
 $result = $api->getETagsList(1);
 
