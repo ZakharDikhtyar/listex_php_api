@@ -9,7 +9,7 @@ namespace Listex;
  */
 class Api
 {
-    const API_URL = 'http://listex.local';
+    const API_URL = 'https://api.listex.info';
 
     const VERSION = 'v3';
 
@@ -400,11 +400,15 @@ class Api
      * @param string|null $eTag ETag
      * @return string
      */
-    public function getProductsById(int $goodId, ?string $eTag = null): string
+    public function getProductsById(int $goodId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'good_id' => $goodId
         ];
+
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
 
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
@@ -415,11 +419,15 @@ class Api
      * @param string|null $eTag ETag
      * @return string
      */
-    public function getProductsByGtin(string $gtin, ?string $eTag = null): string
+    public function getProductsByGtin(string $gtin, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'gtin' => $gtin
         ];
+
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
 
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
@@ -431,29 +439,38 @@ class Api
      * @param string|null $eTag ETag
      * @return string
      */
-    public function getProductsByLtin(string $ltin, int $partyId, ?string $eTag = null): string
+    public function getProductsByLtin(string $ltin, int $partyId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'ltin' => $ltin,
             'party_id' => $partyId
         ];
 
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
+
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
 
     /**
      * Return information about products by SKU
-     * @param string $sku
-     * @param int $partyId
-     * @param string|null $eTag ETag
+     * @param  string  $sku
+     * @param  int  $partyId
+     * @param  string|null  $eTag  ETag
+     * @param  string|null  $relevanceDateFrom
      * @return string
      */
-    public function getProductsBySku(string $sku, int $partyId, ?string $eTag = null): string
+    public function getProductsBySku(string $sku, int $partyId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'sku' => $sku,
             'party_id' => $partyId
         ];
+
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
 
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
