@@ -273,7 +273,7 @@ class Api
         array $params = [],
         string $format = self::RESPONSE_FORMAT_JSON,
         ?string $eTag = null,
-        $httpMethod = self::HTTP_METHOD_GET,
+        string $httpMethod = self::HTTP_METHOD_GET,
         array $payload = []
     ): string {
 
@@ -396,8 +396,9 @@ class Api
 
     /**
      * Return information about product by id
-     * @param int $goodId
-     * @param string|null $eTag ETag
+     * @param  int  $goodId
+     * @param  string|null  $eTag  ETag
+     * @param  \DateTime|null  $relevanceDateFrom
      * @return string
      */
     public function getProductsById(int $goodId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
@@ -415,8 +416,9 @@ class Api
 
     /**
      * Return information about products by GTIN
-     * @param string $gtin
-     * @param string|null $eTag ETag
+     * @param  string  $gtin
+     * @param  string|null  $eTag  ETag
+     * @param  \DateTime|null  $relevanceDateFrom
      * @return string
      */
     public function getProductsByGtin(string $gtin, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
@@ -434,9 +436,10 @@ class Api
 
     /**
      * Return information about products by LTIN
-     * @param string $ltin
-     * @param int $partyId
-     * @param string|null $eTag ETag
+     * @param  string  $ltin
+     * @param  int  $partyId
+     * @param  string|null  $eTag  ETag
+     * @param  \DateTime|null  $relevanceDateFrom
      * @return string
      */
     public function getProductsByLtin(string $ltin, int $partyId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
