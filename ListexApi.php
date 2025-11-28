@@ -652,7 +652,7 @@ class Api
             $params['no_background'] = $noBackground;
         }
 
-        if (in_array($outputFormat, [self::IMAGE_FORMAT_PNG, self::IMAGE_FORMAT_JPEG])) {
+        if ($outputFormat !== null) {
             $params['output_format'] = $outputFormat;
         }
 
