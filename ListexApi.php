@@ -54,6 +54,9 @@ class Api
     const SOCIAL_TYPE_TWITTER = 'tw';
     const SOCIAL_TYPE_VK = 'vk';
 
+    const IMAGE_FORMAT_JPEG = 'JPEG';
+    const IMAGE_FORMAT_PNG = 'PNG';
+
     protected $apiKey;
 
     /** @var string */
@@ -626,6 +629,37 @@ class Api
     }
 
     /**
+     * Image resize & convert
+     * @param string $name
+     * @param int|null $width
+     * @param int|null $height
+     * @param int|null $noBackground
+     * @param string|null $outputFormat
+     * @return string
+     */
+    public function getImage(string $name, ?int $width = null, ?int $height = null, ?int $noBackground = null, ?string $outputFormat = null): string
+    {
+        $params = [
+            'name' => $name,
+        ];
+
+        if ($width !== null && $height !== null) {
+            $params['width'] = $width;
+            $params['height'] = $height;
+        }
+
+        if ($noBackground !== null) {
+            $params['no_background'] = $noBackground;
+        }
+
+        if (in_array($outputFormat, [self::IMAGE_FORMAT_PNG, self::IMAGE_FORMAT_JPEG])) {
+            $params['output_format'] = $outputFormat;
+        }
+
+        return $this->getResponse(self::METHOD_IMAGE, $params, $this->format);
+    }
+
+    /**
      * Image resize
      * @param string $name
      * @param int $width
@@ -633,16 +667,20 @@ class Api
      * @param int $noBackground
      * @return string
      */
-    public function getImage(string $name, int $width, int $height, int $noBackground): string
+    public function resizeImage(string $name, int $width, int $height, int $noBackground): string
     {
-        $params = [
-            'name' => $name,
-            'width' => $width,
-            'height' => $height,
-            'no_background' => $noBackground,
-        ];
+        return $this->getImage($name, $width, $height, $noBackground);
+    }
 
-        return $this->getResponse(self::METHOD_IMAGE, $params, $this->format);
+    /**
+     * Image convert
+     * @param string $name
+     * @param string $outputFormat
+     * @return string
+     */
+    public function convertImage(string $name, string $outputFormat): string
+    {
+        return $this->getImage($name, null, null, null, $outputFormat);
     }
 
     /**
