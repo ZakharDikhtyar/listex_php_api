@@ -122,7 +122,11 @@ $result = $api->addReviewToBrand(1, 'comment', \Listex\Api::SOCIAL_TYPE_GOOGLE_P
 
 $result = $api->addReplyToReview(5587, 'comment', \Listex\Api::SOCIAL_TYPE_GOOGLE_PLUS, '10000000', 'Name', 5);
 
-$result = $api->getImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', 500, 500, 1);
+$result = $api->getImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', 500, 500, 1, \Listex\Api::IMAGE_FORMAT_PNG);
+
+$result = $api->resizeImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', 500, 500, 1);
+
+$result = $api->convertImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', \Listex\Api::IMAGE_FORMAT_PNG);
 
 $result = $api->getLocations();
 
@@ -202,7 +206,11 @@ $result = $api->addReviewToBrand(1, 'comment', \Listex\Api::SOCIAL_TYPE_GOOGLE_P
 
 $result = $api->addReplyToReview(5587, 'comment', \Listex\Api::SOCIAL_TYPE_GOOGLE_PLUS, '10000000', 'Name', 5);
 
-$result = $api->getImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', 500, 500, 1);
+$result = $api->getImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', 500, 500, 1, \Listex\Api::IMAGE_FORMAT_PNG);
+
+$result = $api->resizeImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', 500, 500, 1);
+
+$result = $api->convertImage('https://icf.listex.info/300x200/5a7eb614-13d3-69ed-caf7-420624d1bdd3.jpg', \Listex\Api::IMAGE_FORMAT_PNG);
 
 $result = $api->getLocations();
 
