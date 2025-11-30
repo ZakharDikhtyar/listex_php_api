@@ -82,6 +82,9 @@ try {
     echo 'Not modified';
 }
 
+$result = $api->getProductsById(2, null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
+
 $result = $api->getProductsByGtin('4011100091108');
 
 try {
@@ -89,6 +92,9 @@ try {
 } catch (\Listex\NotModifiedListexApiException $e) {
     echo 'Not modified';
 }
+
+$result = $api->getProductsByGtin('4011100091108', null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
 
 $result = $api->getProductsByLtin('4011100091108', 1);
 
@@ -98,6 +104,9 @@ try {
     echo 'Not modified';
 }
 
+$result = $api->getProductsByLtin('4011100091108', 1, null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
+
 $result = $api->getProductsBySku('4011100091108', 1);
 
 try {
@@ -105,6 +114,9 @@ try {
 } catch (\Listex\NotModifiedListexApiException $e) {
     echo 'Not modified';
 }
+
+$result = $api->getProductsBySku('4011100091108', 1, null, DateTime::createFromFormat('Y-m-d', '2025-01-01'));
+
 
 $result = $api->getETagsList(1);
 
@@ -223,4 +235,54 @@ $result = $api->getPalletizationByGtin('4011100091108');
 $result = $api->getPalletizationByLtin('4011100091108', 1);
 
 $result = $api->getPalletizationBySku('4011100091108', 1);
+```
+
+## Methods for technology partner
+
+```php
+
+$payload = [
+    [
+        'sku' => '6628',
+        'product_name' => 'Напиток безалкогольный сильногазированный на ароматизаторах Original taste Coca-Cola п/бут 500мл',
+        'on_shelves' => true,
+        'planogram_create_date' => time(),
+        'other_identifiers' => [
+            [
+                'id' => '54491472',
+                'supplier_name' => 'The Coca-Cola Company',
+                'supplier_identifier' => '35957550'
+            ]       
+        ]
+    ]  
+];
+
+try {
+    $result = $api->putPlanogramAssortment(2, $payload);
+    $result = $api->postPlanogramAssortment(2, $payload);
+   
+} catch (\Listex\RequestErrorListexApiException $e) {
+    echo $e->getResponseBody();
+}
+
+$payload = [
+    'sku' => [
+        '6628'
+    ]
+];
+
+try {
+    $result = $api->deletePlanogramAssortment(2, $payload);
+   
+} catch (\Listex\RequestErrorListexApiException $e) {
+    echo $e->getResponseBody();
+}
+
+$result = $api->getPlanogramAssortment(2, ['6628']);
+
+$result = $api->getPlanogramAssortmentETagList(2);
+
+$result = $api->getRetailers();
+
+$result = $api->getRetailers('11111111');
 ```
