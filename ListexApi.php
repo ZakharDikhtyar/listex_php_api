@@ -184,7 +184,7 @@ class Api
      * @param  array  $payload
      * @return string
      */
-    public function getPureResponse(
+    private function getPureResponse(
         string $method,
         array $params = [],
         string $format = self::RESPONSE_FORMAT_JSON,
@@ -271,7 +271,7 @@ class Api
      * @param  array  $payload
      * @return string
      */
-    public function getResponse(
+    private function getResponse(
         string $method,
         array $params = [],
         string $format = self::RESPONSE_FORMAT_JSON,
