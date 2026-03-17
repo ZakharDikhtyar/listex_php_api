@@ -31,6 +31,9 @@ class Api
     const METHOD_LOCATIONS = 'locations';
     const METHOD_PALLETIZATION = 'palletization';
     const METHOD_NOVELTY_PRODUCTS = 'novelty-products';
+    const METHOD_PLANOGRAM_ASSORTMENT = 'planogram-assortment';
+    const METHOD_PLANOGRAM_ASSORTMENT_ETAGLIST = 'planogram-assortment-etaglist';
+    const METHOD_RETAILERS = 'retailers';
 
     const CODE_STATUS_OK = 200;
     const CODE_STATUS_NOT_MODIFIED = 304;
@@ -38,11 +41,17 @@ class Api
     const CODE_STATUS_NOT_AUTHORIZED = 401;
     const CODE_STATUS_NO_ACCESS = 403;
     const CODE_STATUS_NO_DATA_FOUND = 404;
+    const CODE_STATUS_METHOD_NOT_ALLOWED = 405;
     const CODE_STATUS_LOCKED = 423;
     const CODE_STATUS_REQUEST_LIMIT_REACHED = 429;
     const CODE_STATUS_INTERNAL_SERVER_ERROR = 500;
     const CODE_STATUS_METHOD_NOT_FOUND = 501;
     const CODE_STATUS_SERVICE_NOT_AVAILABLE = 503;
+
+    const HTTP_METHOD_GET = 'GET';
+    const HTTP_METHOD_POST = 'POST';
+    const HTTP_METHOD_PUT = 'PUT';
+    const HTTP_METHOD_DELETE = 'DELETE';
 
     const ATTRIBUTE_TYPE_ALL = 'a';
     const ATTRIBUTE_TYPE_MANDATORY = 'm';
@@ -167,30 +176,63 @@ class Api
 
     /**
      * Send request and return pure response
-     * @param string $method
-     * @param array $params
-     * @param string $format
-     * @param string|null $eTag ETag
+     * @param  string  $method
+     * @param  array  $params
+     * @param  string  $format
+     * @param  string|null  $eTag  ETag
+     * @param  string  $httpMethod
+     * @param  array  $payload
      * @return string
      */
-    public function getPureResponse(string $method, array $params = [], string $format = self::RESPONSE_FORMAT_JSON, ?string $eTag = null): string
-    {
+    public function getPureResponse(
+        string $method,
+        array $params = [],
+        string $format = self::RESPONSE_FORMAT_JSON,
+        ?string $eTag = null,
+        string $httpMethod = self::HTTP_METHOD_GET,
+        array $payload = []
+    ): string {
+
         $this->lastHttpCode = 0;
         $this->lastHeaders = [];
+        $headers = [];
 
         $params['apikey'] = $this->apiKey;
         $params['format'] = $format;
+        $url = self::getUrl($method) . '?' . http_build_query($params);
+
+        if ($eTag) {
+            $headers[] = 'If-None-Match: "' . $eTag . '"';
+        }
 
         $curl = curl_init();
+        switch ($httpMethod) {
+            case self::HTTP_METHOD_GET:
+                break;
+
+            case self::HTTP_METHOD_POST:
+                curl_setopt($curl, CURLOPT_POST, true);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
+                $headers[] = 'Content-Type: application/json';
+                break;
+
+            case self::HTTP_METHOD_PUT:
+            case self::HTTP_METHOD_DELETE:
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $httpMethod);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
+                $headers[] = 'Content-Type: application/json';
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Unsupported HTTP method: ' . $httpMethod);
+        }
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_URL, self::getUrl($method));
+        curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_USERAGENT, self::getUserAgent());
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
         curl_setopt($curl, CURLOPT_HEADER, true);
-        if (null !== $eTag) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, ['If-None-Match: "' . $eTag . '"']); // fix
+        if ($headers) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         }
 
         $response = curl_exec($curl);
@@ -221,23 +263,33 @@ class Api
 
     /**
      * Get response
-     * @param string $method
-     * @param array $params
-     * @param string $format
-     * @param string|null $eTag ETag
+     * @param  string  $method
+     * @param  array  $params
+     * @param  string  $format
+     * @param  string|null  $eTag  ETag
+     * @param  string  $httpMethod
+     * @param  array  $payload
      * @return string
      */
-    public function getResponse(string $method, array $params = [], string $format = self::RESPONSE_FORMAT_JSON, ?string $eTag = null): string
-    {
-        $response = $this->getPureResponse($method, $params, $format, $eTag);
+    public function getResponse(
+        string $method,
+        array $params = [],
+        string $format = self::RESPONSE_FORMAT_JSON,
+        ?string $eTag = null,
+        string $httpMethod = self::HTTP_METHOD_GET,
+        array $payload = []
+    ): string {
 
-        switch ($this->getLastHttpCode()) {
+        $response = $this->getPureResponse($method, $params, $format, $eTag, $httpMethod, $payload);
+        $httpCode = $this->getLastHttpCode();
+
+        switch ($httpCode) {
             case self::CODE_STATUS_OK:
                 break;
             case self::CODE_STATUS_NOT_MODIFIED:
                 throw new NotModifiedListexApiException('Not modified');
             case self::CODE_STATUS_REQUEST_ERROR:
-                throw new RequestErrorListexApiException('Request error');
+                throw new RequestErrorListexApiException('Request error', $httpCode, null, !empty($response) ? $response : null);
             case self::CODE_STATUS_NOT_AUTHORIZED:
                 throw new NotAuthorizedListexApiException('Not authorized');
             case self::CODE_STATUS_NO_ACCESS:
@@ -255,6 +307,8 @@ class Api
                 throw new MethodNotFoundListexApiException('Method not found');
             case self::CODE_STATUS_SERVICE_NOT_AVAILABLE:
                 throw new ServiceNotAvailableListexApiException('Service not available');
+            case self::CODE_STATUS_METHOD_NOT_ALLOWED:
+                throw new MethodNotAllowedListexApiException('Http method not allowed');
             default:
                 throw new UnknownListexApiException('Unknown error');
         }
@@ -345,64 +399,84 @@ class Api
 
     /**
      * Return information about product by id
-     * @param int $goodId
-     * @param string|null $eTag ETag
+     * @param  int  $goodId
+     * @param  string|null  $eTag  ETag
+     * @param  \DateTime|null  $relevanceDateFrom
      * @return string
      */
-    public function getProductsById(int $goodId, ?string $eTag = null): string
+    public function getProductsById(int $goodId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'good_id' => $goodId
         ];
+
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
 
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
 
     /**
      * Return information about products by GTIN
-     * @param string $gtin
-     * @param string|null $eTag ETag
+     * @param  string  $gtin
+     * @param  string|null  $eTag  ETag
+     * @param  \DateTime|null  $relevanceDateFrom
      * @return string
      */
-    public function getProductsByGtin(string $gtin, ?string $eTag = null): string
+    public function getProductsByGtin(string $gtin, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'gtin' => $gtin
         ];
+
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
 
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
 
     /**
      * Return information about products by LTIN
-     * @param string $ltin
-     * @param int $partyId
-     * @param string|null $eTag ETag
+     * @param  string  $ltin
+     * @param  int  $partyId
+     * @param  string|null  $eTag  ETag
+     * @param  \DateTime|null  $relevanceDateFrom
      * @return string
      */
-    public function getProductsByLtin(string $ltin, int $partyId, ?string $eTag = null): string
+    public function getProductsByLtin(string $ltin, int $partyId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'ltin' => $ltin,
             'party_id' => $partyId
         ];
 
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
+
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
 
     /**
      * Return information about products by SKU
-     * @param string $sku
-     * @param int $partyId
-     * @param string|null $eTag ETag
+     * @param  string  $sku
+     * @param  int  $partyId
+     * @param  string|null  $eTag  ETag
+     * @param  string|null  $relevanceDateFrom
      * @return string
      */
-    public function getProductsBySku(string $sku, int $partyId, ?string $eTag = null): string
+    public function getProductsBySku(string $sku, int $partyId, ?string $eTag = null, ?\DateTime $relevanceDateFrom = null): string
     {
         $params = [
             'sku' => $sku,
             'party_id' => $partyId
         ];
+
+        if ($relevanceDateFrom) {
+            $params['relevance_date_from'] = $relevanceDateFrom->format('Y-m-d');
+        }
 
         return $this->getResponse(self::METHOD_PRODUCTS, $params, $this->format, $eTag);
     }
@@ -778,6 +852,116 @@ class Api
         return $this->getResponse(self::METHOD_NOVELTY_PRODUCTS, $params, $this->format);
     }
 
+    /**
+     * Completely rewrites the assortment of planograms in Listex system
+     * @param int $partyId
+     * @param array $payload
+     * @return string
+     */
+    public function putPlanogramAssortment(int $partyId, array $payload): string
+    {
+        $params = [
+            'party_id' => $partyId,
+        ];
+
+        return $this->getResponse(
+            self::METHOD_PLANOGRAM_ASSORTMENT,
+            $params,
+            $this->format,
+            null,
+            self::HTTP_METHOD_PUT,
+            $payload
+        );
+    }
+
+    /**
+     * Adds new entries to Listex system or updates the existing assortment of planograms
+     * @param int $partyId
+     * @param array $payload
+     * @return string
+     */
+    public function postPlanogramAssortment(int $partyId, array $payload): string
+    {
+        $params = [
+            'party_id' => $partyId,
+        ];
+
+        return $this->getResponse(
+            self::METHOD_PLANOGRAM_ASSORTMENT,
+            $params,
+            $this->format,
+            null,
+            self::HTTP_METHOD_POST,
+            $payload
+        );
+    }
+
+
+    /**
+     * Deletes assortment data from planograms in Listex system
+     * @param  int  $partyId
+     * @param  array  $payload
+     * @return string
+     */
+    public function deletePlanogramAssortment(int $partyId, array $payload): string
+    {
+        $params = [
+            'party_id' => $partyId,
+        ];
+
+        return $this->getResponse(
+            self::METHOD_PLANOGRAM_ASSORTMENT,
+            $params,
+            $this->format,
+            null,
+            self::HTTP_METHOD_DELETE,
+            $payload
+        );
+    }
+
+    /**
+     * Obtaining a full range of planograms
+     * @param int $partyId
+     * @param array $skuList
+     * @return string
+     */
+    public function getPlanogramAssortment(int $partyId, array $skuList = []): string
+    {
+        $params = [
+            'party_id' => $partyId,
+            'sku' => implode(',', $skuList)
+        ];
+
+        return $this->getResponse(self::METHOD_PLANOGRAM_ASSORTMENT, $params, $this->format);
+    }
+
+    /**
+     * Facade for the etagslist method, which filters data according to what is available in the assortment of planograms for the account
+     * @param int $partyId
+     * @return string
+     */
+    public function getPlanogramAssortmentETagList(int $partyId): string
+    {
+        $params = [
+            'party_id' => $partyId,
+        ];
+
+        return $this->getResponse(self::METHOD_PLANOGRAM_ASSORTMENT_ETAGLIST, $params, $this->format);
+    }
+
+    /**
+     * Return list of retailers
+     * @param string $identifier
+     * @return string
+     */
+    public function getRetailers(?string $identifier = null): string
+    {
+        $params = [];
+        if ($identifier) {
+            $params['identifier'] = $identifier;
+        }
+        return $this->getResponse(self::METHOD_RETAILERS, $params, $this->format);
+    }
 }
 
 class ListexApiException extends \RuntimeException
@@ -794,6 +978,18 @@ class NotModifiedListexApiException extends ListexApiException
 
 class RequestErrorListexApiException extends ListexApiException
 {
+    private $responseBody;
+
+    public function __construct($message, $code = 0, $e = null, ?string $responseBody = null)
+    {
+        $this->responseBody = $responseBody;
+        parent::__construct($message, $code, $e);
+    }
+
+    public function getResponseBody(): ?string
+    {
+        return $this->responseBody;
+    }
 }
 
 class NotAuthorizedListexApiException extends ListexApiException
@@ -821,5 +1017,9 @@ class MethodNotFoundListexApiException extends ListexApiException
 }
 
 class ServiceNotAvailableListexApiException extends ListexApiException
+{
+}
+
+class MethodNotAllowedListexApiException extends ListexApiException
 {
 }
